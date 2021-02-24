@@ -11,7 +11,7 @@ var nodemailer = require('nodemailer');
 //-----------------------------------------------------------------------------------
 
 const app = express()
-const port = 3000
+const port = 80
 
 var transporter = nodemailer.createTransport({
   service: 'gmail',
