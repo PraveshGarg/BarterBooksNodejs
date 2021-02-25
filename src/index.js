@@ -16,8 +16,8 @@ const port = process.env.PORT || 3000;
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'barterbooksandgames@gmail.com',
-    pass: 'FirstWebsite222'
+    user: 'BarterBooksIndia@gmail.com',
+    pass: 'xyzabc222@'
   }
 });
 
@@ -60,7 +60,7 @@ app.post('/login', function(req, res){
           //encrypting password             
           var hashPassword = crypto.pbkdf2Sync(password, result[0].fields.Salt, 1000, 64, 'sha512').toString('hex');
           if(hashPassword===result[0].fields.Password){ 
-            res.send([result[0].id, "BooksBarter.html?City="+encodeURIComponent(result[0].fields.City), token]);                                       
+            res.send([result[0].id, "BooksBarter.html?City="+encodeURIComponent(result[0].fields.City), token, result[0].fields.FirstName+" "+result[0].fields.LastName]);                                       
             
             //store token in login table
             base('UserLogins').update([
@@ -110,7 +110,7 @@ app.post('/signup', function(req, res){
         var token = crypto.pbkdf2Sync(result[0].id, salt, 1000, 64, 'sha512').toString('hex');
 
         base('UserLogins').create({ "EmailId": email, "Password": hashPassword, "Salt": salt, "FirstName":firstname, "LastName":lastname, "Mobile":mobile, "City":city, "Address":address, "Token":token}, function (err, record) {
-          res.send([record.id,"BooksBarter.html?City="+encodeURIComponent(city),token]);          
+          res.send([record.id,"BooksBarter.html?City="+encodeURIComponent(city),token, firstname+" "+ lastname]);          
           });                           
       }
       else {
@@ -219,7 +219,7 @@ app.post('/ResetPassword', function(req, res){
         //create token
         var token = crypto.pbkdf2Sync(result[0].id, salt, 1000, 64, 'sha512').toString('hex');
 
-        res.send([result[0].id,"BooksBarter.html?City="+encodeURIComponent(result[0].fields.City), token]);                                 
+        res.send([result[0].id,"BooksBarter.html?City="+encodeURIComponent(result[0].fields.City), token,  result[0].fields.FirstName+" "+result[0].fields.LastName]);                                 
           
           base('UserLogins').update([
             {
@@ -262,7 +262,7 @@ app.post('/PostBooksAdData', function(req, res){
   if(record.fields.Token == token) {       
     base('PostBooksAd').create({ "UserId": req.body.UserId, "BookName": req.body.BookName, "BookType": req.body.BookType, "TextLanguage": req.body.TextLanguage, "Author": req.body.Author, "BookLink": req.body.BookLink, "Description": req.body.Description, "BookInterestedIn": req.body.BookInterestedIn}, function (err, record) {      
       });  
-      res.send(["Posted ad successfully.","#93c90e"]);     
+      res.send(["Ad posted successfully.","#93c90e"]);     
     }
     else{
       res.send(["Session expired. Kindly re-login to continue.","IndianRed"])
@@ -365,7 +365,7 @@ app.post('/ContactButtonClicked', function(req, res){
       }
       else{
         base('ContactStatus').create({ "ContactFrom": UserId1, "ContactTo": UserId2, "Status": "Waiting"}, function (err, record) {
-          res.send(["Contacted successfully. Wait for the person's approval to show his/her mobile number","#93c90e"]);          
+          res.send(["Contacted successfully. Waiting for the person's approval to show his/her mobile number","#93c90e"]);          
           });
       }
     })    
@@ -486,7 +486,7 @@ app.post('/EditMyPostBooksAdData', function(req, res){
           res.send(["Data edit failed","IndianRed"]);   
         }
         else{
-          res.send(["Data edit successfully.","#93c90e"]);   
+          res.send(["Data edited successfully.","#93c90e"]);   
         }
       });  
     }
@@ -509,7 +509,7 @@ app.post('/DeleteMyPostData', function(req, res){
         res.send(["Delete ad failed","IndianRed"]);        
       }
       else{
-      res.send(["Data edited successfully.","#93c90e"]);    
+      res.send(["Ad deleted successfully.","#93c90e"]);    
       }
     });
   }
@@ -518,71 +518,6 @@ app.post('/DeleteMyPostData', function(req, res){
   }
     });
 })
-
-
-
-
-
-//********************************* Requests page coed  ***********************************************/
-app.post('/RequestPostsData', function(req, res){
-  let city = req.body.City;
-  let UserId =  req.body.Userid;
-  let token =  req.body.Token;      
-  
-  let UserLoginsData;
-  let ContactStatusData;
-  base('UserLogins').find(UserId, function(err, record){
-  
-  if(record.fields.Token == token){   
-
-    getCityData().then(function (result) {
-      UserLoginsData = result;
-      
-      return base('ContactStatus').select({
-        filterByFormula: 'AND({ContactTo} == "'+UserId+'", {Status} = "Waiting")',
-      }).all();
-
-    }).then(function (result) { 
-      ContactStatusData = result;
-      
-      return base('PostBooksAd').select({  
-        filterByFormula: '{UserId} != "'+UserId+'"',
-      }).all();
-
-    }).then(function (result){    
-      
-      var dataArray = [];
-      for(var k=0; k<ContactStatusData.length; k++){        
-        for(var i=0; i<result.length; i++){
-
-          if(ContactStatusData[k].fields.ContactFrom == result[i].fields.UserId){                    
-            for(var j=0; j<UserLoginsData.length; j++){
-              if(UserLoginsData[j].id==result[i].fields.UserId){            
-                            
-                  dataArray.push(["",result[i].fields.BookName,result[i].fields.BookType,result[i].fields.TextLanguage,result[i].fields.Author,result[i].fields.BookLink,result[i].fields.Description,result[i].fields.BookInterestedIn,UserLoginsData[j].fields.Address,UserLoginsData[j].fields.FirstName+ " " + UserLoginsData[j].fields.LastName, ContactStatusData[k].id, UserLoginsData[j].id]);                              
-
-              }
-            }
-          }       
-        }
-      }
-      res.send(dataArray);
-    })
-
-    
-    function getCityData(){     
-      return base('UserLogins').select({
-        filterByFormula: '{City} = "'+city+'"',
-      }).all();        
-    }   
-  }
-  else{
-    res.send("");
-  }
-})
-});
-
-
 
 
 
@@ -630,7 +565,7 @@ app.post('/EditAccountDetails', function(req, res){
     }            
   ], function(err, records) {    
     if(err){
-      res.send(["Account edit failed","IndianRed"]);
+      res.send(["Edit account failed","IndianRed"]);
     }        
     else{
       res.send(["Account edited successfully.","#93c90e"]);
@@ -667,7 +602,7 @@ app.post('/ChangePassword', function(req, res){
           }            
         ], function(err, records) {    
           if(err){
-            res.send(["Password change failed.","IndianRed"]);
+            res.send(["Change password failed.","IndianRed"]);
           }        
           else{
             res.send(["Password changed successfully.","#93c90e"]);
