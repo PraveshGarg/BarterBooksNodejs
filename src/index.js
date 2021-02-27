@@ -27,7 +27,7 @@ app.use(
       origin: "*",
   
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-  
+      credentials: true,
       optionsSuccessStatus: 200,
   
     })    
@@ -91,7 +91,7 @@ app.post('/login', function(req, res){
 });
 
 
-app.post('/signup', cors(), function(req, res){
+app.post('/signup', function(req, res){
   let email =  req.body.email;
   let password = req.body.password;
   let firstname = req.body.firstname;
