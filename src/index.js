@@ -24,7 +24,7 @@ var transporter = nodemailer.createTransport({
 app.use(
     cors({
       // var originArray=["https://praveshgarg.github.io/LoginSignUp.html","https://praveshgarg.github.io/Account.html","https://praveshgarg.github.io/BooksBarter.html","https://praveshgarg.github.io/MyPosts.html"]
-      origin: "https://praveshgarg.github.io/LoginSignUp.html",
+      origin: "https://praveshgarg.github.io",
   
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
   
