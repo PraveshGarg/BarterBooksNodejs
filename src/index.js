@@ -21,18 +21,18 @@ var transporter = nodemailer.createTransport({
   }
 });
 
-// app.use(
-//     cors({
-//       // var originArray=["https://praveshgarg.github.io/LoginSignUp.html","https://praveshgarg.github.io/Account.html","https://praveshgarg.github.io/BooksBarter.html","https://praveshgarg.github.io/MyPosts.html"]
-//       origin: "*",
+app.use(
+    cors({
+      // var originArray=["https://praveshgarg.github.io/LoginSignUp.html","https://praveshgarg.github.io/Account.html","https://praveshgarg.github.io/BooksBarter.html","https://praveshgarg.github.io/MyPosts.html"]
+      origin: "https://praveshgarg.github.io/LoginSignUp.html",
   
-//       methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
   
-//       optionsSuccessStatus: 200,
+      optionsSuccessStatus: 200,
   
-//     })    
-//   )
-app.use(cors());
+    })    
+  )
+
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
