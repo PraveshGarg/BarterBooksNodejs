@@ -22,12 +22,9 @@ var transporter = nodemailer.createTransport({
 });
 
 app.use(
-    cors({
-      // var originArray=["https://praveshgarg.github.io/LoginSignUp.html","https://praveshgarg.github.io/Account.html","https://praveshgarg.github.io/BooksBarter.html","https://praveshgarg.github.io/MyPosts.html"]
-      origin: "*",
-  
-      methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-      credentials: true,
+    cors({      
+      origin: "*",  
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",      
       optionsSuccessStatus: 200,
   
     })    
@@ -108,7 +105,7 @@ app.post('/signup', function(req, res){
   checkEmailExistsInDatabase().then(function (result) {    
       if (result.length <= 0) {
         // create token  
-        var token = crypto.pbkdf2Sync(result[0].id, salt, 1000, 64, 'sha512').toString('hex');
+        var token = crypto.pbkdf2Sync(email, salt, 1000, 64, 'sha512').toString('hex');
 
         base('UserLogins').create({ "EmailId": email, "Password": hashPassword, "Salt": salt, "FirstName":firstname, "LastName":lastname, "Mobile":mobile, "City":city, "Address":address, "Token":token}, function (err, record) {
           res.send([record.id,"BooksBarter.html?City="+encodeURIComponent(city),token, firstname+" "+ lastname]);          
